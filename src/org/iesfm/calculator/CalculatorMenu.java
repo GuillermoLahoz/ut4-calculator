@@ -1,5 +1,8 @@
 package org.iesfm.calculator;
 
+import org.iesfm.calculator.exceptions.DivideByZeroException;
+import org.iesfm.calculator.exceptions.EmptyArrayException;
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -19,6 +22,22 @@ public class CalculatorMenu {
             try {
                 System.out.println(message);
                 number = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Error, no has introducido un número");
+            } finally {
+                scanner.nextLine();
+            }
+        }
+
+        return number;
+    }
+
+    private double askDouble(String message) {
+        Double number = null;
+        while (number == null) {
+            try {
+                System.out.println(message);
+                number = scanner.nextDouble();
             } catch (InputMismatchException e) {
                 System.out.println("Error, no has introducido un número");
             } finally {
@@ -51,10 +70,10 @@ public class CalculatorMenu {
         return size;
     }
 
-    private int[] askNumbers() {
-        int[] numbers = new int[askSize()];
+    private double[] askNumbers() {
+        double[] numbers = new double[askSize()];
         for (int i = 0; i < numbers.length; i++) {
-            numbers[i] = askInteger("Introduce un número entero");
+            numbers[i] = askDouble("Introduce un número");
         }
         return numbers;
     }
@@ -63,9 +82,22 @@ public class CalculatorMenu {
         int operation = askOperation();
         while (operation != 3) {
             if (operation == 1) {
-                calculator.divide(askInteger("Introduce un número entero"), askInteger("Introduce otro número entero"));
+                try {
+                    double res = calculator.divide(
+                            askDouble("Introduce un número"),
+                            askDouble("Introduce otro número")
+                    );
+                    System.out.println("El resultado es " + res);
+                } catch (DivideByZeroException e) {
+                    System.out.println("No es posible dividir entre cero");
+                }
             } else if (operation == 2) {
-                calculator.average(askNumbers());
+                try {
+                    double res = calculator.average(askNumbers());
+                    System.out.println("La media es " + res);
+                } catch (EmptyArrayException e) {
+                    System.out.println("No se puede calcular la media de un array vacío");
+                }
             } else {
                 System.out.println("Opción desconocida");
             }
